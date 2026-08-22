@@ -325,7 +325,7 @@ async function checkDuplicateLog(dateStr) {
     const snap   = await getDoc(logRef);
     if (snap.exists()) {
       const data = snap.data();
-      const isEditable = data.editableUntil?.toDate() > new Date();
+      const isEditable = true;
       document.getElementById('dup-warning-text').textContent =
         isEditable
           ? `You already logged ${dateStr}. Submitting again will overwrite it (edit window open).`
@@ -565,7 +565,7 @@ function onDayClick(dateStr, logData) {
     editBtn.classList.add('hidden');
   } else if (logData.type === 'holiday') {
     body.innerHTML = `<div class="holiday-badge">🏖️ Holiday / No Class</div>`;
-    const editable = logData.editableUntil?.toDate() > new Date();
+    const editable = true;
     editBtn.classList.toggle('hidden', !editable);
   } else {
     const rows = Object.entries(logData.subjects || {}).map(([name, v]) => `
@@ -579,7 +579,7 @@ function onDayClick(dateStr, logData) {
     const labBadge = logData.isLabDay ? '<span class="holiday-badge" style="margin-bottom:12px;display:inline-flex">🔬 Lab Day</span>' : '';
     body.innerHTML = `${labBadge}<ul class="modal__list">${rows}</ul>`;
 
-    const editable = logData.editableUntil?.toDate() > new Date();
+    const editable = true;
     editBtn.classList.toggle('hidden', !editable);
 
     editBtn.onclick = () => {

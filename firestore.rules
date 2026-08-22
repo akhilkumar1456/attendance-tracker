@@ -14,10 +14,8 @@ service cloud.firestore {
         // Read & Create: owner only
         allow read, create: if request.auth != null && request.auth.uid == userId;
 
-        // Update & Delete: allowed only within the 24-hour edit window
-        allow update, delete: if request.auth != null
-                              && request.auth.uid == userId
-                              && resource.data.editableUntil > request.time;
+        // Update & Delete: owner only
+        allow update, delete: if request.auth != null && request.auth.uid == userId;
       }
     }
   }

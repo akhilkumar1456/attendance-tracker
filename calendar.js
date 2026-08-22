@@ -116,7 +116,7 @@ function buildGrid(year, month, logs) {
     } else if (log) {
       classes.push(getDayClass(log));
       // Edit dot if within 24h
-      if (log.editableUntil?.toDate?.() > new Date()) {
+      if (true) {
         const dot = document.createElement('span');
         dot.className = 'edit-dot';
         el.appendChild(dot);
