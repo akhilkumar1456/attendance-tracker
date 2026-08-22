@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attendance Tracker — Login</title>
+  <meta name="google-site-verification" content="qK5e0AT83Hd9oLqMpuy4ZUZjoqkTqQhU-pr2RQ9JoH0" />
+  <meta name="description" content="Track your college attendance smartly. Never drop below 75% again." />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── Auth Tabs ─────────────────────────────────── */
+    .auth-tabs {
+      display: flex;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 4px;
+      margin-bottom: 24px;
+      gap: 4px;
+    }
+    .auth-tab {
+      flex: 1; padding: 9px;
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem; font-weight: 600;
+      background: transparent; color: var(--text-muted);
+      transition: var(--transition); border: none;
+      cursor: pointer;
+    }
+    .auth-tab.active {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 2px 8px var(--accent-glow);
+    }
+
+    /* ── Form Fields ───────────────────────────────── */
+    .auth-form { display: flex; flex-direction: column; gap: 12px; }
+    .field-wrap { display: flex; flex-direction: column; gap: 6px; }
+    .field-label { font-size: 0.78rem; font-weight: 600;
+                   color: var(--text-secondary); letter-spacing: 0.05em; }
+    .field-input {
+      width: 100%; padding: 12px 14px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); color: var(--text-primary);
+      font-size: 0.95rem; font-family: var(--font);
+      transition: var(--transition);
+    }
+    .field-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+      outline: none;
+    }
+
+    /* ── Divider ───────────────────────────────────── */
+    .or-divider {
+      display: flex; align-items: center; gap: 12px;
+      color: var(--text-muted); font-size: 0.78rem;
+      margin: 4px 0;
+    }
+    .or-divider::before, .or-divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* ── Error Message ─────────────────────────────── */
+    .auth-error {
+      display: none;
+      background: var(--danger-bg);
+      border: 1px solid rgba(255,77,109,0.3);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-size: 0.82rem; color: var(--danger);
+    }
+    .auth-error.show { display: block; }
+
+    .login-card { padding: 36px 32px; }
+  </style>
+</head>
+<body>
+  <div class="bg-animated"></div>
+
+  <!-- Loading overlay -->
+  <div class="spinner-overlay" id="loading-overlay">
+    <div class="spinner"></div>
+    <p class="spinner-text">Checking session…</p>
+  </div>
+
+  <!-- Login / Register Page -->
+  <main class="login-page hidden" id="login-page">
+    <div class="card login-card">
+
+      <!-- Logo -->
+      <div class="login-logo">📚</div>
+      <h1 class="login-title">Attendance Tracker</h1>
+      <p class="login-sub">Never drop below <strong style="color:var(--safe)">75%</strong> again.</p>
+
+      <!-- Tabs: Sign In / Sign Up -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-signin">Sign In</button>
+        <button class="auth-tab"        id="tab-signup">Sign Up</button>
+      </div>
+
+      <!-- Error Banner -->
+      <div class="auth-error" id="auth-error"></div>
+
+      <!-- ── Sign In Form ── -->
+      <div id="signin-form">
+        <div class="auth-form">
+          <div class="field-wrap">
+            <label class="field-label" for="signin-email">Email</label>
+            <input class="field-input" type="email" id="signin-email"
+                   placeholder="you@college.edu" autocomplete="email" />
+          </div>
+          <div class="field-wrap">
+            <label class="field-label" for="signin-password">Password</label>
+            <input class="field-input" type="password" id="signin-password"
+                   placeholder="••••••••" autocomplete="current-password" />
+          </div>
+          <button class="btn btn--primary btn--full" id="email-signin-btn">
+            Sign In
+          </button>
+        </div>
+
+        <div class="or-divider mt-16 mb-16">or</div>
+
+        <div class="google-btn-wrap">
+          <button class="btn btn--google btn--full" id="google-signin-btn">
+            <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+              <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+              <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.36-8.16 2.36-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+            </svg>
+            Continue with Google
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Sign Up Form ── -->
+      <div id="signup-form" class="hidden">
+        <div class="auth-form">
+          <div class="field-wrap">
+            <label class="field-label" for="signup-name">Full Name</label>
+            <input class="field-input" type="text" id="signup-name"
+                   placeholder="Your Name" autocomplete="name" />
+          </div>
+          <div class="field-wrap">
+            <label class="field-label" for="signup-email">Email</label>
+            <input class="field-input" type="email" id="signup-email"
+                   placeholder="you@college.edu" autocomplete="email" />
+          </div>
+          <div class="field-wrap">
+            <label class="field-label" for="signup-password">Password</label>
+            <input class="field-input" type="password" id="signup-password"
+                   placeholder="Min 6 characters" autocomplete="new-password" />
+          </div>
+          <div class="field-wrap">
+            <label class="field-label" for="signup-confirm">Confirm Password</label>
+            <input class="field-input" type="password" id="signup-confirm"
+                   placeholder="Re-enter password" autocomplete="new-password" />
+          </div>
+          <button class="btn btn--primary btn--full" id="email-signup-btn">
+            Create Account
+          </button>
+        </div>
+
+        <div class="or-divider mt-16 mb-16">or</div>
+
+        <div class="google-btn-wrap">
+          <button class="btn btn--google btn--full" id="google-signup-btn">
+            <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+              <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+              <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.36-8.16 2.36-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+            </svg>
+            Sign up with Google
+          </button>
+        </div>
+      </div>
+
+      <p class="text-xs text-muted mt-16" style="text-align:center">
+        Your data is stored securely on Firebase. 🔒
+      </p>
+    </div>
+  </main>
+
+  <script type="module">
+    import { onAuth, signInWithGoogle, loginWithEmail, registerWithEmail } from './app.js';
+    import { db } from './app.js';
+    import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+    const overlay    = document.getElementById('loading-overlay');
+    const loginPage  = document.getElementById('login-page');
+    const errorEl    = document.getElementById('auth-error');
+
+    // ── Routing after auth ──────────────────────────
+    onAuth(async (user) => {
+      overlay.classList.add('hidden');
+      if (user) {
+        const snap = await getDoc(doc(db, 'users', user.uid));
+        if (snap.exists() && snap.data().setupComplete) {
+          window.location.href = 'dashboard.html';
+        } else {
+          window.location.href = 'setup.html';
+        }
+      } else {
+        loginPage.classList.remove('hidden');
+      }
+    });
+
+    // ── Tab switching ───────────────────────────────
+    document.getElementById('tab-signin').addEventListener('click', () => switchTab('signin'));
+    document.getElementById('tab-signup').addEventListener('click', () => switchTab('signup'));
+
+    function switchTab(tab) {
+      const isSignin = tab === 'signin';
+      document.getElementById('tab-signin').classList.toggle('active',  isSignin);
+      document.getElementById('tab-signup').classList.toggle('active', !isSignin);
+      document.getElementById('signin-form').classList.toggle('hidden',  !isSignin);
+      document.getElementById('signup-form').classList.toggle('hidden',   isSignin);
+      hideError();
+    }
+
+    // ── Error helpers ───────────────────────────────
+    function showError(msg) {
+      errorEl.textContent = msg;
+      errorEl.classList.add('show');
+    }
+    function hideError() { errorEl.classList.remove('show'); }
+
+    function friendlyError(code) {
+      const map = {
+        'auth/invalid-email':          'Please enter a valid email address.',
+        'auth/user-not-found':         'No account found with this email.',
+        'auth/wrong-password':         'Incorrect password. Please try again.',
+        'auth/email-already-in-use':   'An account with this email already exists.',
+        'auth/weak-password':          'Password must be at least 6 characters.',
+        'auth/too-many-requests':      'Too many attempts. Please try again later.',
+        'auth/invalid-credential':     'Incorrect email or password.',
+        'auth/popup-closed-by-user':   'Sign-in popup was closed.',
+      };
+      return map[code] || 'Something went wrong. Please try again.';
+    }
+
+    function setLoading(btn, loading) {
+      btn.disabled = loading;
+      btn.style.opacity = loading ? '0.7' : '1';
+    }
+
+    // ── Sign In with Email ──────────────────────────
+    document.getElementById('email-signin-btn').addEventListener('click', async () => {
+      hideError();
+      const email    = document.getElementById('signin-email').value.trim();
+      const password = document.getElementById('signin-password').value;
+      const btn      = document.getElementById('email-signin-btn');
+
+      if (!email || !password) { showError('Please fill in all fields.'); return; }
+
+      setLoading(btn, true);
+      btn.textContent = 'Signing in…';
+      try {
+        await loginWithEmail(email, password);
+      } catch (e) {
+        showError(friendlyError(e.code));
+        setLoading(btn, false);
+        btn.textContent = 'Sign In';
+      }
+    });
+
+    // ── Sign Up with Email ──────────────────────────
+    document.getElementById('email-signup-btn').addEventListener('click', async () => {
+      hideError();
+      const name     = document.getElementById('signup-name').value.trim();
+      const email    = document.getElementById('signup-email').value.trim();
+      const password = document.getElementById('signup-password').value;
+      const confirm  = document.getElementById('signup-confirm').value;
+      const btn      = document.getElementById('email-signup-btn');
+
+      if (!name || !email || !password || !confirm) {
+        showError('Please fill in all fields.'); return;
+      }
+      if (password !== confirm) {
+        showError('Passwords do not match.'); return;
+      }
+      if (password.length < 6) {
+        showError('Password must be at least 6 characters.'); return;
+      }
+
+      setLoading(btn, true);
+      btn.textContent = 'Creating account…';
+      try {
+        await registerWithEmail(name, email, password);
+        // onAuth will fire and redirect to setup
+      } catch (e) {
+        showError(friendlyError(e.code));
+        setLoading(btn, false);
+        btn.textContent = 'Create Account';
+      }
+    });
+
+    // ── Google Sign In (both tabs) ──────────────────
+    ['google-signin-btn', 'google-signup-btn'].forEach(id => {
+      document.getElementById(id).addEventListener('click', async () => {
+        hideError();
+        try {
+          await signInWithGoogle();
+        } catch (e) {
+          showError(friendlyError(e.code));
+        }
+      });
+    });
+
+    // ── Enter key support ───────────────────────────
+    document.getElementById('signin-password').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') document.getElementById('email-signin-btn').click();
+    });
+    document.getElementById('signup-confirm').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') document.getElementById('email-signup-btn').click();
+    });
+  </script>
+</body>
+</html>

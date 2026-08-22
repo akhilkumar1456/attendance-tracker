@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings — Attendance Tracker</title>
+  <meta name="description" content="Manage your account, timetable, and preferences." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg-animated"></div>
+
+  <div class="spinner-overlay" id="loading-overlay">
+    <div class="spinner"></div>
+    <p class="spinner-text">Loading settings…</p>
+  </div>
+
+  <div class="hidden" id="settings-root">
+    <!-- Navbar -->
+    <nav class="navbar">
+      <a href="dashboard.html" class="navbar__brand">← Back to Dashboard</a>
+      <div class="navbar__right">
+        <button class="icon-btn" id="theme-toggle" title="Toggle theme" aria-label="Toggle theme">🌓</button>
+        <button class="icon-btn" id="logout-btn" title="Logout" aria-label="Logout">🚪</button>
+      </div>
+    </nav>
+
+    <main class="main-layout" style="max-width:600px">
+      <h1 style="font-size:1.4rem;font-weight:800;margin-bottom:4px">⚙️ Settings</h1>
+      <p class="text-muted text-sm mb-16">Manage your profile, timetable, and app preferences.</p>
+
+      <!-- Profile -->
+      <section class="settings-section">
+        <p class="settings-title">Profile</p>
+        <div class="card">
+          <div class="profile-card-inner">
+            <img class="profile-avatar" id="profile-avatar" src="" alt="avatar" />
+            <div class="profile-info">
+              <p class="profile-name"  id="profile-name">—</p>
+              <p class="profile-email" id="profile-email">—</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Account Stats -->
+      <section class="settings-section">
+        <p class="settings-title">Your Stats</p>
+        <div class="card">
+          <div class="stat-row">
+            <span class="stat-label">Member since</span>
+            <span class="stat-value" id="stat-member-since">—</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Current streak</span>
+            <span class="stat-value" id="stat-streak">—</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Longest streak</span>
+            <span class="stat-value" id="stat-longest">—</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Total logs</span>
+            <span class="stat-value" id="stat-total-logs">—</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Target percentage</span>
+            <span class="stat-value" style="color:var(--accent)">75% (fixed)</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Timetable Viewer -->
+      <section class="settings-section">
+        <p class="settings-title">Your Timetable</p>
+        <div class="card">
+          <div id="timetable-viewer">
+            <p class="text-muted text-sm">Loading timetable…</p>
+          </div>
+          <hr class="divider" style="margin:16px 0" />
+          <button class="btn btn--ghost btn--full" id="re-upload-btn">
+            🔄 Re-upload Timetable
+          </button>
+          <p class="text-xs text-muted mt-8" style="text-align:center">
+            This will take you back to the setup wizard. Your existing logs won't be affected.
+          </p>
+        </div>
+      </section>
+
+      <!-- Theme -->
+      <section class="settings-section">
+        <p class="settings-title">Appearance</p>
+        <div class="card">
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <span class="toggle-title">🌓 Dark Mode</span>
+              <span class="toggle-desc">Toggle between dark and light theme</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="theme-switch" />
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- Danger Zone -->
+      <section class="settings-section">
+        <p class="settings-title">Account</p>
+        <div class="card">
+          <button class="btn btn--danger btn--full" id="logout-full-btn">
+            🚪 Sign Out
+          </button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast-container" aria-live="polite"></div>
+
+  <script type="module" src="settings.js"></script>
+</body>
+</html>

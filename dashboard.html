@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Attendance Tracker</title>
+  <meta name="description" content="Your personal attendance dashboard — track, log, and stay above 75%." />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="bg-animated"></div>
+  <div id="offline-banner">⚠️ You're offline — showing cached data</div>
+
+  <!-- Loading overlay -->
+  <div class="spinner-overlay" id="loading-overlay">
+    <div class="spinner"></div>
+    <p class="spinner-text">Loading your dashboard…</p>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div class="modal-overlay" id="confirm-modal">
+    <div class="modal">
+      <h3 class="modal__title" id="modal-title">✅ Confirm Attendance</h3>
+      <div class="modal__body" id="modal-body">
+        <ul class="modal__list" id="modal-list"></ul>
+      </div>
+      <div class="modal__actions">
+        <button class="btn btn--ghost" id="modal-cancel">Cancel</button>
+        <button class="btn btn--primary" id="modal-confirm">Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Layout -->
+  <div class="hidden" id="main-content">
+
+    <!-- Navbar -->
+    <nav class="navbar">
+      <span class="navbar__brand">📚 AttendanceTracker</span>
+      <div class="navbar__right">
+        <div class="streak-badge" id="streak-badge">
+          <span class="flame">🔥</span>
+          <span id="streak-count">0</span> day streak
+        </div>
+        <span class="user-name" id="user-name"></span>
+        <img class="user-avatar" id="user-avatar" src="" alt="avatar" />
+        <button class="icon-btn" id="theme-toggle" title="Toggle theme" aria-label="Toggle theme">🌓</button>
+        <a href="settings.html" class="icon-btn" title="Settings" aria-label="Settings">⚙️</a>
+        <button class="icon-btn" id="logout-btn" title="Logout" aria-label="Logout">🚪</button>
+      </div>
+    </nav>
+
+    <main class="main-layout">
+
+      <!-- Overall Hero -->
+      <section aria-label="Overall Attendance">
+        <div class="hero-card" id="hero-card">
+          <div class="ring-wrapper">
+            <svg class="progress-ring" width="150" height="150" viewBox="0 0 120 120" aria-hidden="true">
+              <circle class="progress-ring__bg" cx="60" cy="60" r="54"/>
+              <circle class="progress-ring__fill" id="overall-ring-fill" cx="60" cy="60" r="54" stroke="var(--accent)"/>
+            </svg>
+            <div class="ring-label">
+              <span class="ring-pct" id="overall-pct">—</span>
+              <span class="ring-sub">overall</span>
+            </div>
+          </div>
+          <div style="flex:1;min-width:0">
+            <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:4px" id="hero-greeting">Good day!</h2>
+            <p class="text-sm text-muted mb-8" id="overall-counts">Total: — / — classes</p>
+            <div class="advice-card advice-card--warning" id="advice-card">
+              <span id="advice-icon">📊</span>
+              <span id="advice-text">Loading your stats…</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quick Actions -->
+      <section aria-label="Quick Actions">
+        <p class="section-title">Quick Actions</p>
+        <div class="quick-actions">
+          <button class="btn btn--safe" id="qa-all-present">
+            <span class="qa-icon">✅</span> All Present
+          </button>
+          <button class="btn btn--danger" id="qa-all-absent">
+            <span class="qa-icon">❌</span> All Absent
+          </button>
+          <button class="btn btn--holiday" id="qa-holiday">
+            <span class="qa-icon">🏖️</span> Holiday
+          </button>
+        </div>
+      </section>
+
+      <!-- Leave Calculator -->
+      <section aria-label="Leave Calculator" style="margin-top:24px">
+        <p class="section-title">Leave Calculator</p>
+        <div class="card" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <label style="font-size:0.85rem;color:var(--text-secondary)">If I take leave for</label>
+          <input type="number" id="calc-leave-days" class="field-input" style="width:70px;padding:8px" min="1" max="30" value="1" />
+          <label style="font-size:0.85rem;color:var(--text-secondary)">days,</label>
+          <div style="flex:1;min-width:150px">
+            <span id="calc-result" style="font-size:0.9rem;font-weight:600;color:var(--text-primary)">my attendance will be —</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Log Attendance Form -->
+      <section aria-label="Log Attendance">
+        <div class="card form-card">
+          <p class="section-title">Log Today's Attendance</p>
+
+          <!-- Duplicate warning -->
+          <div class="dup-warning" id="dup-warning">
+            <span>⚠️</span>
+            <span id="dup-warning-text">You already logged this date.</span>
+          </div>
+
+          <!-- Today's classes banner -->
+          <div class="today-banner" id="today-banner">
+            📅 <span id="today-banner-text">Loading today's schedule…</span>
+          </div>
+
+          <!-- Date picker -->
+          <div class="form-section">
+            <label class="form-label" for="log-date">Date</label>
+            <input type="date" class="form-input" id="log-date" />
+          </div>
+
+          <!-- Lab Day Toggle -->
+          <div class="form-section">
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <span class="toggle-title">🔬 Lab Day</span>
+                <span class="toggle-desc">Sets all subjects to 3 periods (conducted)</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="lab-toggle" />
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Subject Toggles -->
+          <div class="form-section">
+            <label class="form-label">Today's Subjects</label>
+            <div class="subject-toggles" id="subject-toggles">
+              <p class="text-sm text-muted">Loading subjects…</p>
+            </div>
+          </div>
+
+          <button class="btn btn--primary btn--full" id="submit-btn">
+            Submit Attendance
+          </button>
+        </div>
+      </section>
+
+      <!-- Subject Cards -->
+      <section aria-label="Per-Subject Attendance">
+        <p class="section-title">Subject Breakdown</p>
+        <div class="subjects-grid" id="subjects-grid">
+          <!-- Skeleton loaders -->
+          <div class="skeleton skeleton-card"></div>
+          <div class="skeleton skeleton-card"></div>
+          <div class="skeleton skeleton-card"></div>
+        </div>
+      </section>
+
+      <!-- Trend Chart -->
+      <section aria-label="Attendance Trend">
+        <div class="card chart-card">
+          <div class="chart-header">
+            <h3 class="chart-title">📈 Attendance Trend</h3>
+            <span class="text-xs text-muted">Weekly % per subject</span>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="trend-chart" aria-label="Weekly attendance trend chart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Calendar -->
+      <section aria-label="Attendance Calendar">
+        <div class="card calendar-card">
+          <div class="calendar-header">
+            <button class="cal-nav-btn" id="cal-prev" aria-label="Previous month">‹</button>
+            <h3 class="cal-month" id="cal-month-label"></h3>
+            <button class="cal-nav-btn" id="cal-next" aria-label="Next month">›</button>
+          </div>
+          <div class="cal-grid" id="cal-grid">
+            <!-- Populated by calendar.js -->
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Day Detail Modal (calendar click) -->
+  <div class="modal-overlay" id="day-modal">
+    <div class="modal">
+      <h3 class="modal__title" id="day-modal-title">📅 Day Details</h3>
+      <div id="day-modal-body" class="modal__body"></div>
+      <div class="modal__actions">
+        <button class="btn btn--ghost" id="day-modal-close">Close</button>
+        <button class="btn btn--primary hidden" id="day-modal-edit">✏️ Edit</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container" aria-live="polite"></div>
+
+  <script type="module" src="dashboard.js"></script>
+</body>
+</html>

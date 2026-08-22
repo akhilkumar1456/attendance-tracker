@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Setup — Attendance Tracker</title>
+  <meta name="description" content="Set up your weekly timetable to start tracking attendance." />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .midsem-combined {
+      display: flex; gap: 16px; flex-wrap: wrap;
+    }
+    .midsem-combined .field-wrap { flex: 1; min-width: 120px; }
+    .field-wrap { display: flex; flex-direction: column; gap: 6px; margin-bottom: 4px; }
+    .field-label {
+      font-size: 0.78rem; font-weight: 600;
+      color: var(--text-secondary); letter-spacing: 0.05em;
+    }
+    .field-input {
+      width: 100%; padding: 12px 14px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); color: var(--text-primary);
+      font-size: 0.95rem; font-family: var(--font);
+      transition: var(--transition);
+    }
+    .field-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+      outline: none;
+    }
+    .pct-preview-box {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: var(--radius-md);
+      text-align: center;
+      font-size: 1.5rem; font-weight: 800;
+      transition: var(--transition);
+    }
+    .pct-preview-label {
+      font-size: 0.78rem; font-weight: 500;
+      color: inherit; opacity: 0.8; display: block; margin-top: 2px;
+    }
+    .day-row {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 8px;
+      align-items: start;
+      margin-bottom: 10px;
+    }
+    .day-label-text {
+      font-size: 0.78rem; font-weight: 700;
+      letter-spacing: 0.07em; text-transform: uppercase;
+      color: var(--text-secondary); padding-top: 10px;
+    }
+    .subjects-input {
+      width: 100%; padding: 10px 14px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); color: var(--text-primary);
+      font-size: 0.88rem; font-family: var(--font);
+      transition: var(--transition);
+    }
+    .subjects-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+      outline: none;
+    }
+    .subjects-input::placeholder { color: var(--text-muted); }
+    .input-hint {
+      font-size: 0.72rem; color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-animated"></div>
+
+  <div class="spinner-overlay" id="loading-overlay">
+    <div class="spinner"></div>
+    <p class="spinner-text">Loading…</p>
+  </div>
+
+  <div class="wizard-container hidden" id="wizard-root">
+
+    <!-- Step Indicator -->
+    <div class="wizard-steps" id="step-indicator">
+      <div class="wizard-step-dot active" id="dot-1"></div>
+      <div class="wizard-connector"       id="con-1"></div>
+      <div class="wizard-step-dot"        id="dot-2"></div>
+      <div class="wizard-connector"       id="con-2"></div>
+      <div class="wizard-step-dot"        id="dot-3"></div>
+    </div>
+
+    <!-- ── Step 1: Timetable Entry ── -->
+    <div class="wizard-card" id="step-1">
+      <p class="text-xs text-muted mb-4">STEP 1 OF 3</p>
+      <h2 class="wizard-title">📅 Enter Your Timetable</h2>
+      <p class="wizard-subtitle">Type the subjects you have each day, separated by commas.<br/>
+        Leave a day blank if you have no classes.</p>
+
+      <p class="input-hint">Example: <em>Math, Physics, English, Chemistry</em></p>
+
+      <div id="timetable-inputs">
+        <!-- Populated by JS -->
+      </div>
+
+      <div class="flex gap-12" style="justify-content:flex-end;margin-top:8px">
+        <button class="btn btn--primary" id="go-to-2">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── Step 2: Mid-Semester ── -->
+    <div class="wizard-card hidden" id="step-2">
+      <p class="text-xs text-muted mb-4">STEP 2 OF 3</p>
+      <h2 class="wizard-title">📊 Previous Attendance</h2>
+      <p class="wizard-subtitle">Are you joining mid-semester? Enter your existing combined attendance so your overall stats are accurate from day one.</p>
+
+      <div class="toggle-row mb-16">
+        <div class="toggle-info">
+          <span class="toggle-title">Joining mid-semester?</span>
+          <span class="toggle-desc">Toggle on to enter your existing totals</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="midsem-toggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div id="midsem-wrap" class="hidden">
+        <div class="dup-warning show mb-16" style="display:flex">
+          <span>💡</span>
+          <span>Enter the <strong>combined total</strong> across all your subjects so far. Your future daily logs will be added on top of this.</span>
+        </div>
+
+        <div class="midsem-combined mb-8">
+          <div class="field-wrap">
+            <label class="field-label" for="total-conducted">Total Classes Conducted</label>
+            <input type="number" class="field-input" id="total-conducted"
+                   min="0" max="9999" placeholder="e.g. 120" />
+          </div>
+          <div class="field-wrap">
+            <label class="field-label" for="total-attended">Total Classes Attended</label>
+            <input type="number" class="field-input" id="total-attended"
+                   min="0" max="9999" placeholder="e.g. 96" />
+          </div>
+        </div>
+
+        <!-- Live preview -->
+        <div class="pct-preview-box" id="pct-preview"
+             style="background:var(--surface);border:1px solid var(--border);color:var(--text-muted)">
+          —
+          <span class="pct-preview-label">Enter numbers above to see your current %</span>
+        </div>
+      </div>
+
+      <div class="flex gap-12" style="justify-content:space-between;margin-top:24px">
+        <button class="btn btn--ghost" id="back-to-1">← Back</button>
+        <button class="btn btn--primary" id="go-to-3">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── Step 3: Confirm ── -->
+    <div class="wizard-card hidden" id="step-3">
+      <p class="text-xs text-muted mb-4">STEP 3 OF 3</p>
+      <h2 class="wizard-title">🎉 All Set!</h2>
+      <p class="wizard-subtitle">Review your setup and confirm to start tracking.</p>
+
+      <div id="setup-summary" class="mb-16"></div>
+
+      <div class="flex gap-12" style="justify-content:space-between">
+        <button class="btn btn--ghost" id="back-to-2">← Back</button>
+        <button class="btn btn--primary btn--full" id="confirm-btn">
+          🚀 Start Tracking
+        </button>
+      </div>
+      <div id="save-progress" class="hidden mt-16" style="text-align:center">
+        <div class="spinner" style="margin:0 auto 8px"></div>
+        <p class="text-sm text-muted">Saving your data…</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module" src="setup.js"></script>
+</body>
+</html>
