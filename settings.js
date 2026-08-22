@@ -47,6 +47,9 @@ function renderProfile() {
   document.getElementById('profile-avatar').src = userData.photoURL || '';
   document.getElementById('profile-name').textContent  = userData.name  || '—';
   document.getElementById('profile-email').textContent = userData.email || '—';
+  
+  if (userData.erpUsername) document.getElementById('erp-username').value = userData.erpUsername;
+  if (userData.erpPassword) document.getElementById('erp-password').value = userData.erpPassword;
 }
 
 function renderStats(totalLogs) {
@@ -127,6 +130,34 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
 });
 document.getElementById('logout-full-btn').addEventListener('click', async () => {
   await signOutUser(); window.location.href = 'index.html';
+});
+
+// ── ERP Settings ──────────────────────────────────────────────
+document.getElementById('save-erp-btn').addEventListener('click', async () => {
+  const userEl = document.getElementById('erp-username');
+  const passEl = document.getElementById('erp-password');
+  const btn = document.getElementById('save-erp-btn');
+
+  if (!userEl.value || !passEl.value) {
+    showToast('Please enter both Roll Number and Password', 'error');
+    return;
+  }
+
+  btn.textContent = 'Saving...';
+  btn.disabled = true;
+
+  try {
+    await updateDoc(doc(db, 'users', currentUser.uid), {
+      erpUsername: userEl.value.trim(),
+      erpPassword: passEl.value.trim()
+    });
+    showToast('ERP Credentials securely saved!', 'success');
+  } catch (err) {
+    showToast('Error saving credentials: ' + err.message, 'error');
+  } finally {
+    btn.textContent = '💾 Save Credentials';
+    btn.disabled = false;
+  }
 });
 
 // ── Toast ─────────────────────────────────────────────────────

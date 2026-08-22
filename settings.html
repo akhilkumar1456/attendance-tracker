@@ -70,6 +70,21 @@
         </div>
       </section>
 
+      <!-- ERP Auto-Sync -->
+      <section class="settings-section">
+        <p class="settings-title">Vardhaman ERP Auto-Sync</p>
+        <div class="card">
+          <p class="text-sm text-muted mb-16">Enter your ERP credentials to automatically sync your attendance every night. <strong>Note: Your password will be securely stored in your personal database.</strong></p>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <input type="text" id="erp-username" class="field-input" placeholder="Roll Number (e.g. 21881A0501)" />
+            <input type="password" id="erp-password" class="field-input" placeholder="ERP Password" />
+            <button class="btn btn--primary" id="save-erp-btn" style="margin-top:8px;">
+              💾 Save Credentials
+            </button>
+          </div>
+        </div>
+      </section>
+
       <!-- Timetable Viewer -->
       <section class="settings-section">
         <p class="settings-title">Your Timetable</p>
